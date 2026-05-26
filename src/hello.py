@@ -1,1 +1,1 @@
-print("Branch A")
+print("Branch A + Branch B merged")
