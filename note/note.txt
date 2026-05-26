@@ -1,0 +1,140 @@
+  5. uv run 的更多用法
+  ────────────────────
+
+  # 运行项目里的脚本（自动用 .venv）
+  uv run python main.py
+
+  # 直接运行项目中已安装的命令（不需要写全路径）
+  uv run pytest --version
+  你本地真实输出：pytest 9.0.3
+
+  # 运行一次不在项目依赖里的命令（临时用）
+  uv run --with httpie python -c "import httpie"
+
+  # 指定 Python 版本运行（忽略当前项目配置）
+  uv run --python 3.12 python main.py
+
+  核心优势： 你再也不用手动 source .venv/bin/activate 或 .venv\Scripts\activate，uv run 自动搞定。
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6. uv tool — 全局 CLI 工具管理（替代 pipx）
+  ───────────────────────────────────────────
+
+  uv tool install ruff          # 安装 ruff 格式化工具到全局
+  uv tool install black
+  uv tool run ruff check .      # 运行但不永久安装（类似 npx）
+  uv tool list                  # 查看已安装的全局工具
+  uv tool uninstall ruff        # 卸载
+
+  你本地执行 uv tool list 的真实输出：
+  kimi-cli v1.38.0
+  - kimi
+  - kimi-cli
+
+  这说明你系统里已经用 uv 装了 kimi-cli。
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7. uv pip — 兼容 pip 的接口
+  ───────────────────────────
+
+  如果你习惯 pip 的命令，或者需要临时操作某个环境：
+
+  uv pip install requests              # 等价 pip install
+  uv pip install -r requirements.txt   # 从 requirements.txt 安装
+  uv pip list                          # 看当前环境装了什么
+  uv pip freeze                        # 导出 requirements 格式
+  uv pip uninstall requests            # 卸载
+
+  你本地执行 uv pip list 的真实输出（移除 requests 后的状态）：
+  Package   Version
+  --------- -------
+  colorama  0.4.6
+  iniconfig 2.3.0
+  packaging 26.2
+  pluggy    1.6.0
+  pygments  2.20.0
+  pytest    9.0.3
+
+  什么时候用 uv pip vs uv add？
+  • uv add：用于项目管理，会改 pyproject.toml 和 uv.lock，是正规做法。
+  • uv pip：用于临时操作、兼容旧流程、或者你不做项目只是临时装个包。
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8. 缓存管理
+  ───────────
+
+  uv cache dir          # 看缓存目录位置
+  uv cache clean        # 清空缓存
+
+  你本地的缓存目录：
+  C:\Users\冯忠俊\AppData\Local\uv\cache
+
+  uv 会把下载的包缓存在这里，不同项目共用缓存，所以装第二个项目时会非常快。
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9. 国内镜像配置（你肯定会遇到）
+  ───────────────────────────────
+
+  创建 uv.toml 文件（放项目根目录或 %APPDATA%\uv\uv.toml）：
+
+  [[index]]
+  url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+  default = true
+
+  或者用阿里云：
+  [[index]]
+  url = "https://mirrors.aliyun.com/pypi/simple"
+  default = true
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10. 单文件脚本也能声明依赖（PEP 723）
+  ─────────────────────────────────────
+
+  如果你不想开项目，只有一个 hello.py，可以在文件顶部写：
+
+  # /// script
+  # dependencies = ["requests>=2.0"]
+  # requires-python = ">=3.10"
+  # ///
+
+  import requests
+  print(requests.get("https://api.github.com").status_code)
+
+  然后直接：
+  uv run hello.py
+
+  uv 会自动创建一个临时的、隔离的环境来运行这个脚本，不会在目录里留下 .venv。
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  知识地图总结
+  ────────────
+
+  ┌───────────────────────┬───────────────────┬──────────────────────────┐
+  │ 命令                  │ 作用              │ 对应旧工具               │
+  ├───────────────────────┼───────────────────┼──────────────────────────┤
+  │ uv init               │ 初始化项目        │ 无                       │
+  │ uv add                │ 添加依赖          │ pip install              │
+  │ uv remove             │ 移除依赖          │ pip uninstall            │
+  │ uv sync               │ 按 lock 同步环境  │ pip install -r           │
+  │ uv lock               │ 更新 lock 文件    │ pip-compile              │
+  │ uv run                │ 在环境中运行命令  │ source venv/bin/activate │
+  │ uv tree               │ 看依赖树          │ pipdeptree               │
+  │ uv export             │ 导出 requirements │ 无                       │
+  │ uv venv               │ 创建虚拟环境      │ python -m venv           │
+  │ uv python install/pin │ 管理 Python 版本  │ pyenv                    │
+  │ uv tool install       │ 装全局 CLI 工具   │ pipx                     │
+  │ uv pip                │ 兼容 pip 的操作   │ pip                      │
+  └───────────────────────┴───────────────────┴──────────────────────────┘
+
+  ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+  你想先深入学哪个部分？比如：
+  • 实际走一遍换机器 / 团队协作的完整流程？
+  • 学单文件脚本 + 内联依赖的用法？
+  • 配置国内镜像 + 私有仓库？
+

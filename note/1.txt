@@ -1,0 +1,27 @@
+  uv python list ，
+  怎么那么多东西，我特担忧我的uv又搞换掉，怎么一堆哇，啥情况，另外你别瞎整，刚刚整个项目乱糟糟我现在全清空了，创建AGENTS.md要求所有测试什么的都分门别类放不同文件夹，不许瞎搞；
+   uv python pin 3.12    ，pin是干啥的？
+
+   
+  ⚠️ 重要限制（刚才真实踩到的坑）： uv python pin 的版本不能低于 pyproject.toml 里的 requires-python 最低版本。
+
+  你本地执行 uv python pin 3.13 时，真实报错是：
+  error: The requested Python version `3.13` is incompatible with the project `requires-python` value of `>=3.14`.
+
+  正确做法： 先改 pyproject.toml 里的 requires-python，再 pin。
+  完全看不懂你这是啥意思；
+
+
+    uv add --dev pytest                # 开发依赖（测试、lint 等）
+  uv add --group test pytest    
+  不懂
+
+
+
+    4. 虚拟环境
+  ───────────
+
+  uv venv                    # 创建 .venv（默认）
+  uv venv myenv --python 3.13   # 创建自定义名字的虚拟环境，并指定 Python
+
+这种是属于创建在哪里的呢？各个项目通用的吗？
